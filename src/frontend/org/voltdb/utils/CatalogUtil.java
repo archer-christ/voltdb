@@ -136,6 +136,7 @@ import org.voltdb.plannodes.AbstractPlanNode;
 import org.voltdb.settings.ClusterSettings;
 import org.voltdb.settings.DbSettings;
 import org.voltdb.settings.NodeSettings;
+import org.voltdb.settings.SettingsException;
 import org.voltdb.snmp.DummySnmpTrapSender;
 import org.voltdb.types.ConstraintType;
 import org.xml.sax.SAXException;
@@ -1713,8 +1714,8 @@ public abstract class CatalogUtil {
         snapshotPath = new File(VoltDB.instance().getSnapshotPath(paths));
         if (!snapshotPath.isAbsolute())
         {
-            String relativizedPath = relativizeToVoltDBRoot(VoltDB.instance().getSnapshotPath(paths));
-            snapshotPath = new VoltFile(voltDbRoot, relativizedPath);
+            String sanitizedPath = sanitizePath(VoltDB.instance().getSnapshotPath(paths));
+            snapshotPath = new VoltFile(voltDbRoot, sanitizedPath);
         }
 
         if (!snapshotPath.exists()) {
@@ -1737,8 +1738,8 @@ public abstract class CatalogUtil {
         commandlogPath = new File(VoltDB.instance().getCommandLogPath(paths));
         if (!commandlogPath.isAbsolute())
         {
-            String relativizedPath = relativizeToVoltDBRoot(VoltDB.instance().getCommandLogPath(paths));
-            commandlogPath = new VoltFile(voltDbRoot, relativizedPath);
+            String sanitizedPath = sanitizePath(VoltDB.instance().getCommandLogPath(paths));
+            commandlogPath = new VoltFile(voltDbRoot, sanitizedPath);
         }
 
         if (!commandlogPath.exists()) {
@@ -1763,8 +1764,8 @@ public abstract class CatalogUtil {
         commandlogSnapshotPath = new File(VoltDB.instance().getCommandLogSnapshotPath(paths));
         if (!commandlogSnapshotPath.isAbsolute())
         {
-            String relativizedPath = relativizeToVoltDBRoot(VoltDB.instance().getCommandLogSnapshotPath(paths));
-            commandlogSnapshotPath = new VoltFile(voltDbRoot, relativizedPath);
+            String sanitizedPath = sanitizePath(VoltDB.instance().getCommandLogSnapshotPath(paths));
+            commandlogSnapshotPath = new VoltFile(voltDbRoot, sanitizedPath);
         }
 
         if (!commandlogSnapshotPath.exists()) {
@@ -1783,8 +1784,8 @@ public abstract class CatalogUtil {
         exportOverflowPath = new File(VoltDB.instance().getExportOverflowPath(paths));
         if (!exportOverflowPath.isAbsolute())
         {
-            String relativizedPath = relativizeToVoltDBRoot(VoltDB.instance().getExportOverflowPath(paths));
-            exportOverflowPath = new VoltFile(voltDbRoot, relativizedPath);
+            String sanitizedPath = sanitizePath(VoltDB.instance().getExportOverflowPath(paths));
+            exportOverflowPath = new VoltFile(voltDbRoot, sanitizedPath);
         }
 
         if (!exportOverflowPath.exists()) {
@@ -1803,8 +1804,8 @@ public abstract class CatalogUtil {
         drOverflowPath = new File(VoltDB.instance().getDROverflowPath(paths));
         if (!drOverflowPath.isAbsolute())
         {
-            String relativizedPath = relativizeToVoltDBRoot(VoltDB.instance().getDROverflowPath(paths));
-            drOverflowPath = new VoltFile(voltDbRoot, relativizedPath);
+            String sanitizedPath = sanitizePath(VoltDB.instance().getDROverflowPath(paths));
+            drOverflowPath = new VoltFile(voltDbRoot, sanitizedPath);
         }
 
         if (!drOverflowPath.exists()) {
@@ -2608,7 +2609,11 @@ public abstract class CatalogUtil {
         PathsType paths = deployment.getPaths();
         if (paths.getVoltdbroot() == null) {
             PathsType.Voltdbroot root = new PathsType.Voltdbroot();
-            root.setPath(new File(VoltDB.instance().getVoltDBRootPath()).getAbsolutePath());
+            try {
+                root.setPath(new File(VoltDB.instance().getVoltDBRootPath()).getCanonicalPath());
+            } catch(IOException e) {
+                throw new SettingsException("failed to canonicalize root path while updating runtime deployment.");
+            }
             paths.setVoltdbroot(root);
         } else {
             paths.getVoltdbroot().setPath(new File(VoltDB.instance().getVoltDBRootPath()).getAbsolutePath());
@@ -2616,47 +2621,54 @@ public abstract class CatalogUtil {
         //snapshot
         if (paths.getSnapshots() == null) {
             PathsType.Snapshots snap = new PathsType.Snapshots();
-            snap.setPath(relativizeToVoltDBRoot(VoltDB.instance().getSnapshotPath()));
+            snap.setPath(sanitizePath(VoltDB.instance().getSnapshotPath()));
             paths.setSnapshots(snap);
         } else {
-            paths.getSnapshots().setPath(relativizeToVoltDBRoot(VoltDB.instance().getSnapshotPath()));
+            paths.getSnapshots().setPath(sanitizePath(VoltDB.instance().getSnapshotPath()));
         }
         if (paths.getCommandlog() == null) {
             //cl
             PathsType.Commandlog cl = new PathsType.Commandlog();
-            cl.setPath(relativizeToVoltDBRoot(VoltDB.instance().getCommandLogPath()));
+            cl.setPath(sanitizePath(VoltDB.instance().getCommandLogPath()));
             paths.setCommandlog(cl);
         } else {
-            paths.getCommandlog().setPath(relativizeToVoltDBRoot(VoltDB.instance().getCommandLogPath()));
+            paths.getCommandlog().setPath(sanitizePath(VoltDB.instance().getCommandLogPath()));
         }
         if (paths.getCommandlogsnapshot() == null) {
             //cl snap
             PathsType.Commandlogsnapshot clsnap = new PathsType.Commandlogsnapshot();
-            clsnap.setPath(relativizeToVoltDBRoot(VoltDB.instance().getCommandLogSnapshotPath()));
+            clsnap.setPath(sanitizePath(VoltDB.instance().getCommandLogSnapshotPath()));
             paths.setCommandlogsnapshot(clsnap);
         } else {
-            paths.getCommandlogsnapshot().setPath(relativizeToVoltDBRoot(VoltDB.instance().getCommandLogSnapshotPath()));
+            paths.getCommandlogsnapshot().setPath(sanitizePath(VoltDB.instance().getCommandLogSnapshotPath()));
         }
         if (paths.getExportoverflow() == null) {
             //export overflow
             PathsType.Exportoverflow exp = new PathsType.Exportoverflow();
-            exp.setPath(relativizeToVoltDBRoot(VoltDB.instance().getExportOverflowPath()));
+            exp.setPath(sanitizePath(VoltDB.instance().getExportOverflowPath()));
             paths.setExportoverflow(exp);
         } else {
-            paths.getExportoverflow().setPath(relativizeToVoltDBRoot(VoltDB.instance().getExportOverflowPath()));
+            paths.getExportoverflow().setPath(sanitizePath(VoltDB.instance().getExportOverflowPath()));
         }
         if (paths.getDroverflow() == null) {
             //dr overflow
             final PathsType.Droverflow droverflow = new PathsType.Droverflow();
-            droverflow.setPath(relativizeToVoltDBRoot(VoltDB.instance().getDROverflowPath()));
+            droverflow.setPath(sanitizePath(VoltDB.instance().getDROverflowPath()));
             paths.setDroverflow(droverflow);
         } else {
-            paths.getDroverflow().setPath(relativizeToVoltDBRoot(VoltDB.instance().getDROverflowPath()));
+            paths.getDroverflow().setPath(sanitizePath(VoltDB.instance().getDROverflowPath()));
         }
         return deployment;
     }
 
-    private static String relativizeToVoltDBRoot(String s) {
+    /**
+     * Get a path and return its relative path to the voltdbroot only if itself
+     * is a relative path. Absolute paths are not relativized and returned
+     * as they are.
+     * @param s
+     * @return sanitized path
+     */
+    private static String sanitizePath(String s) {
         File path = new File(s);
         if (path.isAbsolute()) {
             return s;
