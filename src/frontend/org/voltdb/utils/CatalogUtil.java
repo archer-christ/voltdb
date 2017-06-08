@@ -2665,16 +2665,22 @@ public abstract class CatalogUtil {
      * Get a path and return its relative path to the voltdbroot only if itself
      * is a relative path. Absolute paths are not relativized and returned
      * as they are.
-     * @param s
+     * @param p
      * @return sanitized path
      */
-    private static String sanitizePath(String s) {
-        File path = new File(s);
+    private static String sanitizePath(String p) {
+        File path = new File(p);
         if (path.isAbsolute()) {
-            return s;
+            return p;
         } else {
             File voltDBRoot = new File(VoltDB.instance().getVoltDBRootPath());
-            return voltDBRoot.toURI().relativize(path.toURI()).getPath();
+            File relativePath = new File(voltDBRoot.toURI().relativize(path.toURI()));
+            if (relativePath.isAbsolute()) {
+            // Failed to relativize. This means p is already relative to voltdbroot
+                return p;
+            } else {
+                return relativePath.getPath();
+            }
         }
     }
 }
