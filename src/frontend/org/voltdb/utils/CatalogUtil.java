@@ -2607,16 +2607,16 @@ public abstract class CatalogUtil {
     public static DeploymentType updateRuntimeDeploymentPaths(DeploymentType deployment) {
         deployment = CatalogUtil.shallowClusterAndPathsClone(deployment);
         PathsType paths = deployment.getPaths();
-        if (paths.getVoltdbroot() == null) {
-            PathsType.Voltdbroot root = new PathsType.Voltdbroot();
-            try {
+        try {
+            if (paths.getVoltdbroot() == null) {
+                PathsType.Voltdbroot root = new PathsType.Voltdbroot();
                 root.setPath(new File(VoltDB.instance().getVoltDBRootPath()).getCanonicalPath());
-            } catch(IOException e) {
-                throw new SettingsException("failed to canonicalize root path while updating runtime deployment.");
+                paths.setVoltdbroot(root);
+            } else {
+                paths.getVoltdbroot().setPath(new File(VoltDB.instance().getVoltDBRootPath()).getCanonicalPath());
             }
-            paths.setVoltdbroot(root);
-        } else {
-            paths.getVoltdbroot().setPath(new File(VoltDB.instance().getVoltDBRootPath()).getAbsolutePath());
+        } catch (IOException e) {
+            throw new SettingsException("failed to canonicalize root path while updating runtime deployment.");
         }
         //snapshot
         if (paths.getSnapshots() == null) {
