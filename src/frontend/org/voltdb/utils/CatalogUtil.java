@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -1668,6 +1669,7 @@ public abstract class CatalogUtil {
         File voltDbRoot;
         // Handles default voltdbroot (and completely missing "paths" element).
         voltDbRoot = getVoltDbRoot(paths);
+
         //Snapshot
         setupSnapshotPaths(paths.getSnapshots(), voltDbRoot);
         //export overflow
@@ -2672,15 +2674,15 @@ public abstract class CatalogUtil {
         File path = new File(p);
         if (path.isAbsolute()) {
             return p;
+        }
+
+        File voltDBRoot = new File(VoltDB.instance().getVoltDBRootPath());
+        URI relativePath = voltDBRoot.toURI().relativize(path.toURI());
+        if (relativePath.isAbsolute()) {
+            // Failed to relativize, which means p is already relative to voltdbroot.
+            return p;
         } else {
-            File voltDBRoot = new File(VoltDB.instance().getVoltDBRootPath());
-            File relativePath = new File(voltDBRoot.toURI().relativize(path.toURI()));
-            if (relativePath.isAbsolute()) {
-            // Failed to relativize. This means p is already relative to voltdbroot
-                return p;
-            } else {
-                return relativePath.getPath();
-            }
+            return relativePath.getPath();
         }
     }
 }
