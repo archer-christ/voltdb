@@ -246,6 +246,7 @@ public class TestCollector extends JUnit4LocalClusterTest {
 
                BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath()));
                writer.write(fileText);
+               writer.flush();
                writer.close();
 
                formatter.format(file.lastModified());
@@ -263,6 +264,7 @@ public class TestCollector extends JUnit4LocalClusterTest {
            file.createNewFile();
 
            BufferedWriter writer = new BufferedWriter(new FileWriter(file.getAbsolutePath()));
+           writer.flush();
            writer.write(fileText);
            writer.close();
 
@@ -273,6 +275,7 @@ public class TestCollector extends JUnit4LocalClusterTest {
 
            FileOutputStream fos = new FileOutputStream(configInfoPath);
            fos.write(jsonObject.toString(4).getBytes(Charsets.UTF_8));
+           fos.flush();
            fos.close();
         } catch (JSONException e) {
               System.err.print(e.getMessage());
