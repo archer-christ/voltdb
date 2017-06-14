@@ -828,6 +828,13 @@ public class VoltDB {
                     .build();
         }
 
+        public Map<String,String> asRelativePathSettingsMap() {
+            Settings.initialize(m_voltdbRoot);
+            return ImmutableMap.<String, String>builder()
+                    .put(NodeSettings.VOLTDBROOT_PATH_KEY, "voltdbroot")
+                    .build();
+        }
+
         public Map<String, String> asNodeSettingsMap() {
             return ImmutableMap.<String, String>builder()
                     .put(NodeSettings.LOCAL_SITES_COUNT_KEY, Integer.toString(m_sitesperhost))
