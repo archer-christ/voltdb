@@ -26,6 +26,7 @@ package org.voltdb.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -51,9 +52,7 @@ import org.json_voltpatches.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.voltcore.utils.CoreUtils;
-
 import org.voltdb.BackendTarget;
 import org.voltdb.VoltDB.SimulatedExitException;
 import org.voltdb.client.Client;
@@ -427,7 +426,16 @@ public class TestCollector extends JUnit4LocalClusterTest {
 
         m_outputFileName = new File(m_voltDbRootPath).getParent() + File.separator + m_pid + "_withDaysToCollect.zip";
         deleteOutputFileIfExists();
-        ZipFile collectionZip = collect(true, 3, false);
+
+        ZipFile collectionZip = null;
+        try {
+            // Test debugging, temporary for ENG-12684
+            collectionZip = collect(true, 3, false);
+        }
+        catch (Exception e) {
+            fail("Exception thrown from collect, m_voltDbRootPath=" + m_voltDbRootPath);
+        }
+
         int logCount = 0;
         Enumeration<? extends ZipEntry> e = collectionZip.entries();
         while (e.hasMoreElements()) {
