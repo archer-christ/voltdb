@@ -830,8 +830,10 @@ public class VoltDB {
 
         public Map<String,String> asRelativePathSettingsMap() {
             Settings.initialize(m_voltdbRoot);
+            File currDir = new File("").getAbsoluteFile();
+            String relativePath = currDir.toPath().relativize(m_voltdbRoot.toPath()).toString();
             return ImmutableMap.<String, String>builder()
-                    .put(NodeSettings.VOLTDBROOT_PATH_KEY, "voltdbroot")
+                    .put(NodeSettings.VOLTDBROOT_PATH_KEY, relativePath)
                     .build();
         }
 
