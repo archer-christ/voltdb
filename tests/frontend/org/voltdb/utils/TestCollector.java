@@ -158,6 +158,7 @@ public class TestCollector extends JUnit4LocalClusterTest {
                     + CoreUtils.getHostnameOrAddress() + Collector.COLLECT_FILE_EXTENSION;
         }
 
+        System.out.println("Calling Collector: params=" + cliParams.toString());
         Collector.main(cliParams.toArray(new String[cliParams.size()]));
 
         m_collectBaseFolder = Collector.getZipCollectFolderBase();

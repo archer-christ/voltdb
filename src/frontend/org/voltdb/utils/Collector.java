@@ -175,7 +175,7 @@ public class Collector {
         m_config.parse(Collector.class.getName(), args);
         if (!m_config.outputFile.trim().isEmpty() && !m_config.prefix.trim().isEmpty()) {
             System.err.println("For outputfile, specify either --output or --prefix. Can't specify "
-                    + "both of them.");
+                    + "both of them. outputFile=" + m_config.outputFile + " prefix=" + m_config.prefix + " voltDBRoot=" + m_voltdbRoot + "; args=" + Arrays.asList(args) );
             m_config.printUsage();
             VoltDB.exit(-1);
         }
@@ -569,6 +569,8 @@ public class Collector {
             String sizeStringInKB = String.format("%5.2f", (double)sizeInByte / 1000);
             System.out.println("\nCollection file created in " + collectionFilePath + "; file size: " + sizeStringInKB + " KB");
         } catch (Exception e) {
+            System.err.println("Exception caught while creating collection, collectionFilePath; voltdbRoot=" + m_voltdbRoot);
+            e.printStackTrace();
             System.err.println(e.getMessage());
         }
     }
