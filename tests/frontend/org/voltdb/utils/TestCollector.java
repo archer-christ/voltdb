@@ -341,6 +341,7 @@ public class TestCollector extends JUnit4LocalClusterTest {
 
     @Test
     public void testBasicFilesAndCrash() throws Exception {
+        System.out.println(">>>>>>>>>>> testBasicFilesAndCrash");
         //Terrible hack, wait for config logging thread to finish
         Thread.sleep(STARTUP_DELAY);
 
@@ -423,6 +424,7 @@ public class TestCollector extends JUnit4LocalClusterTest {
     @Test
     public void testDaysToCollectOption() throws Exception {
 
+        System.out.println(">>>>>>>>>>> testDaysToCollectOption");
         createLogFiles();
 
         m_outputFileName = new File(m_voltDbRootPath).getParent() + File.separator + m_pid + "_withDaysToCollect.zip";

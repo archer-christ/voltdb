@@ -145,8 +145,15 @@ public class Collector {
         File deploymentFile = new File(m_deploymentPath);
         File configInfoFile = new File(m_configInfoPath);
         if (!deploymentFile.exists() || !configInfoFile.exists()) {
-            System.err.println("ERROR: Invalid database directory " + m_voltdbRoot.getParentFile().getAbsolutePath()
-                    + ". Specify valid database directory using --dir option.");
+            System.err.println("ERROR: Invalid database directory " + m_voltdbRoot.getParentFile().getAbsolutePath() + " deploymentFile=" + deploymentFile.getAbsolutePath() + " configInfoFile=" + configInfoFile.getAbsolutePath()
+                + ". Specify valid database directory using --dir option.");
+        }
+        if (!deploymentFile.exists()) {
+            System.err.println("ERROR: deploymentFile does not exist: " + deploymentFile.getAbsolutePath() + " voltdbRoot=" + m_voltdbRoot);
+            VoltDB.exit(-1);
+        }
+        if (!configInfoFile.exists()) {
+            System.err.println("ERROR: configInfo does not exist: " + configInfoFile.getAbsolutePath() + " voltdbRoot=" + m_voltdbRoot);
             VoltDB.exit(-1);
         }
 
