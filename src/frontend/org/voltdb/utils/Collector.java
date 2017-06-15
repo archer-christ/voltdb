@@ -132,6 +132,8 @@ public class Collector {
         }
         m_config.voltdbroot = m_voltdbRoot.getAbsolutePath();
 
+        System.out.println("in populateVoltDBCollectionPath: voltdbroot=" + m_voltdbRoot.getAbsolutePath() + " exists=" + m_voltdbRoot.exists());
+
         // files to collect from config dir
         String configLogDirPath = m_voltdbRoot.getAbsolutePath() + File.separator + Constants.CONFIG_DIR + File.separator;
         m_configInfoPath = configLogDirPath + "config.json";
@@ -187,6 +189,7 @@ public class Collector {
             VoltDB.exit(-1);
         }
 
+        System.out.println("args=" + Arrays.asList(args).toString());
         populateVoltDBCollectionPaths();
 
         JSONObject jsonObject = parseJSONFile(m_configInfoPath);
