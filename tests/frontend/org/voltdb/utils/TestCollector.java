@@ -109,6 +109,9 @@ public class TestCollector extends JUnit4LocalClusterTest {
             String voltDbFilePrefix = cluster.getSubRoots().get(0).getPath();
             voltDbRoot = new File(voltDbFilePrefix, builder.getPathToVoltRoot().getPath());
         }
+        boolean exists = voltDbRoot.mkdir(); // ??
+        System.out.println("voltDbRoot=" + voltDbRoot.getAbsolutePath() + " mkdir returned" + exists);
+
         m_voltDbRootPath = voltDbRoot.getPath();
         listener = cluster.getListenerAddresses().get(0);
         client = ClientFactory.createClient();
