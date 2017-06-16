@@ -146,16 +146,34 @@ public class Collector {
         // Validate voltdbroot path is valid or not - check if deployment and config info json exists
         File deploymentFile = new File(m_deploymentPath);
         File configInfoFile = new File(m_configInfoPath);
+
+        // jmc -- Theory: the deployment file hasn't been created yet (it is created by another process and perhaps we're racing. Let's try to wait a bit.
+        try {
+            for (int i = 0; i < 6; i++) {
+                if (!(deploymentFile.exists() && configInfoFile.exists())) {
+                    System.err.println("Still looking for files, i=" + i + " m_voltdbRoot=" + m_voltdbRoot.getParentFile().getAbsolutePath() +
+                                       " deploymentFile=" + deploymentFile.getAbsolutePath() + " configInfoFile=" + configInfoFile.getAbsolutePath());
+                    Thread.sleep(5000);
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (!deploymentFile.exists() || !configInfoFile.exists()) {
-            System.err.println("ERROR: Invalid database directory " + m_voltdbRoot.getParentFile().getAbsolutePath() + " deploymentFile=" + deploymentFile.getAbsolutePath() + " configInfoFile=" + configInfoFile.getAbsolutePath()
-                + ". Specify valid database directory using --dir option.");
-        }
-        if (!deploymentFile.exists()) {
-            System.err.println("ERROR: deploymentFile does not exist: " + deploymentFile.getAbsolutePath() + " voltdbRoot=" + m_voltdbRoot);
-            VoltDB.exit(-1);
-        }
-        if (!configInfoFile.exists()) {
-            System.err.println("ERROR: configInfo does not exist: " + configInfoFile.getAbsolutePath() + " voltdbRoot=" + m_voltdbRoot);
+            //System.err.println("Waited for deploymentFile and configInfoFile to be created, but they haven't beeen, exiting. m_voltdbRoot=" + m_voltdbRoot.getParentFile().getAbsolutePath() + " deploymentFile=" + deploymentFile.getAbsolutePath() + " configInfoFile=" + configInfoFile.getAbsolutePath()
+            //+ " Specify valid database directory using --dir option.");
+
+            if (!deploymentFile.exists()) {
+                System.err.println("ERROR: deploymentFile does not exist: " + deploymentFile.getAbsolutePath() + " voltdbRoot=" + m_voltdbRoot);
+            }
+            if (!configInfoFile.exists()) {
+                System.err.println("ERROR: configInfo does not exist: " + configInfoFile.getAbsolutePath() + " voltdbRoot=" + m_voltdbRoot);
+            }
             VoltDB.exit(-1);
         }
 
