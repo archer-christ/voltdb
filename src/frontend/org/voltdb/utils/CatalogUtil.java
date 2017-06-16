@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -2677,12 +2676,15 @@ public abstract class CatalogUtil {
         }
 
         File voltDBRoot = new File(VoltDB.instance().getVoltDBRootPath());
-        URI relativePath = voltDBRoot.toURI().relativize(path.toURI());
-        if (relativePath.isAbsolute()) {
-            // Failed to relativize, which means p is already relative to voltdbroot.
-            return p;
+        if (path.toPath().startsWith(voltDBRoot.toPath())) {
+            try {
+                return voltDBRoot.getCanonicalFile().toPath().relativize(path.getCanonicalFile().toPath()).toString();
+            } catch (IOException e) {
+                throw new SettingsException("Failed to sanitize path: " + p);
+            }
         } else {
-            return relativePath.getPath();
+            // p is already relative to voltdbroot
+            return p;
         }
     }
 }

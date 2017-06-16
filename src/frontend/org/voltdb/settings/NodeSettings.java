@@ -199,7 +199,7 @@ public interface NodeSettings extends Settings {
                 if (path.isAbsolute()) {
                     mb.put(e.getKey(), path.getCanonicalPath());
                 } else {
-                    mb.put(e.getKey(), getVoltDBRoot().toURI().relativize(path.toURI()).getPath());
+                    mb.put(e.getKey(), getVoltDBRoot().getCanonicalFile().toPath().relativize(path.getCanonicalFile().toPath()).toString());
                 }
             }
             mb.put(LOCAL_SITES_COUNT_KEY, Integer.toString(getLocalSitesCount()));
